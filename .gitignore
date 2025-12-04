@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.env
+.DS_Store
+.vscode/
+yarn-error.log
+.yarn/*
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions

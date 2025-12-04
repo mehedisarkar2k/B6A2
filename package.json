@@ -1,0 +1,28 @@
+{
+  "name": "vehicle-rental-system",
+  "packageManager": "yarn@4.11.0",
+  "type": "module",
+  "scripts": {
+    "preinstall": "npx only-allow yarn",
+    "dev": "src/index.ts",
+    "run:dev": "yarn dev",
+    "build": "tsc",
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.16.3",
+    "zod": "^4.1.13"
+  },
+  "devDependencies": {
+    "@types/express": "^5",
+    "@types/jsonwebtoken": "^9",
+    "@types/node": "^24.10.1",
+    "@types/pg": "^8.15.6",
+    "dotenv": "^17.2.3",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}
