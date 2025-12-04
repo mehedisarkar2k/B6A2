@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { AuthController } from './auth.controller';
-import { requestValidator } from '../../middleware';
+import { requestValidator, roleValidator } from '../../middleware';
 import { AuthZodSchema } from './auth.schema';
 import { asyncHandler } from '../../core';
 
@@ -31,10 +31,15 @@ authRouter.post(
 authRouter.post(
   '/reset-password',
   requestValidator(AuthZodSchema.ResetPasswordSchema),
+  roleValidator(),
   asyncHandler(AuthController.resetPassword),
 );
 
 // POST /api/v1/auth/logout - Logout user
-authRouter.post('/logout', asyncHandler(AuthController.logout));
+authRouter.post(
+  '/logout',
+  roleValidator(),
+  asyncHandler(AuthController.logout),
+);
 
 export { authRouter as AuthRouter };

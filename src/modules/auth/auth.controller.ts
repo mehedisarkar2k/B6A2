@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import { AuthZodSchema } from './auth.schema';
-import type { User, UserWithoutPassword } from '../user/user.types';
+import type { UserWithoutPassword } from '../user/user.types';
 import { Password, SendResponse } from '../../core';
 import { UserService } from '../user/user.service';
 import { AuthService } from './auth.service';
