@@ -4,10 +4,9 @@
   "type": "module",
   "scripts": {
     "preinstall": "npx only-allow yarn",
-    "dev": "src/index.ts",
-    "run:dev": "yarn dev",
+    "dev": "tsx src/index.ts",
     "build": "tsc",
-    "start": "node index.js"
+    "start": "node dist/index.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

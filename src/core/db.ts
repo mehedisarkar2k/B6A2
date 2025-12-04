@@ -2,12 +2,7 @@ import { Pool, QueryResult, QueryResultRow } from 'pg';
 import { ENV } from '../config/env';
 
 const pool = new Pool({
-    host: ENV.DB_HOST,
-    port: Number(ENV.DB_PORT),
-    user: ENV.DB_USER,
-    password: ENV.DB_PASSWORD,
-    database: ENV.DB_NAME,
-    options: '--search_path=public',
+    connectionString: ENV.DATABASE_URL,
     ssl: {
         rejectUnauthorized: ENV.NODE_ENV !== 'development',
     },
