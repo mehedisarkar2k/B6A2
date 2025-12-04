@@ -1,51 +1,74 @@
 import type { Request, Response } from 'express';
 import { AuthZodSchema } from './auth.schema';
-import type { User } from '../user/user.types';
+import type { User, UserWithoutPassword } from '../user/user.types';
 import { Password, SendResponse } from '../../core';
 import { UserService } from '../user/user.service';
 import { AuthService } from './auth.service';
 import { ENV } from '../../config';
+import { JWTToken } from '../../core/jwt-token';
 
-const login = async (req: Request, res: Response) => {
+const signin = async (req: Request, res: Response) => {
   const payload = AuthZodSchema.SigninSchema.parse(req.body);
-  let user: User | undefined;
 
-  if (payload.email) {
-    user = await UserService.findUserByEmail(payload.email);
-  } else if (payload.username) {
-    user = await UserService.findUserByUsername(payload.username);
-  } else {
-    return SendResponse.unprocessableEntity({
-      res,
-      message: 'Either email or username is required',
-    });
-  }
+  const user = await UserService.findUserByEmail(payload.email.toLowerCase());
 
   if (!user) {
-    return SendResponse.notFound({ res, message: 'User not found' });
+    return SendResponse.unauthorized({ res, message: 'Invalid credentials' });
   }
 
-  const { accessToken, refreshToken } = await AuthService.login(payload, user);
+  try {
+    const { accessToken, refreshToken } = await AuthService.login(
+      payload,
+      user,
+    );
 
-  // set refresh token in http only cookie
-  res.cookie('refreshToken', refreshToken, {
-    httpOnly: true,
-    secure: ENV.NODE_ENV === 'production',
-    sameSite: ENV.NODE_ENV === 'production' ? 'none' : 'lax',
-    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-  });
+    // Store refresh token in database
+    await AuthService.storeRefreshToken(
+      user.id,
+      refreshToken,
+      req.headers['user-agent'],
+      req.ip,
+    );
 
-  return SendResponse.success({
-    res,
-    message: 'Login successful',
-    data: {
-      accessToken,
-    },
-  });
+    // Set refresh token in http only cookie
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: ENV.NODE_ENV === 'production',
+      sameSite: ENV.NODE_ENV === 'production' ? 'none' : 'lax',
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+    });
+
+    const userData: UserWithoutPassword = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      role: user.role,
+    };
+
+    return SendResponse.success({
+      res,
+      message: 'Login successful',
+      data: {
+        token: accessToken,
+        user: userData,
+      },
+    });
+  } catch {
+    return SendResponse.unauthorized({ res, message: 'Invalid credentials' });
+  }
 };
 
 const signup = async (req: Request, res: Response) => {
   const { password, ...rest } = AuthZodSchema.SignupSchema.parse(req.body);
+
+  // Check if user already exists
+  const existingUser = await UserService.findUserByEmail(
+    rest.email.toLowerCase(),
+  );
+  if (existingUser) {
+    return SendResponse.conflict({ res, message: 'Email already exists' });
+  }
 
   const hashedPassword = await Password.hash(password);
 
@@ -63,13 +86,131 @@ const signup = async (req: Request, res: Response) => {
     });
   }
 
+  const userData = newUser.rows[0] as UserWithoutPassword;
+
   return SendResponse.created({
     res,
-    message: 'User created successfully',
+    message: 'User registered successfully',
+    data: {
+      id: userData.id,
+      name: userData.name,
+      email: userData.email,
+      phone: userData.phone,
+      role: userData.role,
+    },
+  });
+};
+
+const forgotPassword = async (req: Request, res: Response) => {
+  const { email } = AuthZodSchema.ForgotPasswordSchema.parse(req.body);
+
+  const user = await UserService.findUserByEmail(email.toLowerCase());
+
+  // Always return success to prevent email enumeration
+  if (!user) {
+    return SendResponse.success({
+      res,
+      message:
+        'If an account exists with this email, a password reset link has been sent',
+    });
+  }
+
+  // Generate reset token (valid for 1 hour)
+  const resetToken = JWTToken.sign({
+    id: user.id,
+    email: user.email,
+    type: 'password_reset',
+  });
+
+  // Store reset token
+  await AuthService.storeResetToken(user.id, resetToken);
+
+  // In production, you would send this token via email
+  // For now, we'll return it in the response (only for development/testing)
+  return SendResponse.success({
+    res,
+    message:
+      'If an account exists with this email, a password reset link has been sent',
+    data:
+      ENV.NODE_ENV === 'development'
+        ? { resetToken } // Only in development
+        : undefined,
+  });
+};
+
+const resetPassword = async (req: Request, res: Response) => {
+  const { token, password } = AuthZodSchema.ResetPasswordSchema.parse(req.body);
+
+  try {
+    // Verify the reset token
+    const decoded = JWTToken.verify<{
+      id: number;
+      email: string;
+      type: string;
+    }>(token);
+
+    if (decoded.type !== 'password_reset') {
+      return SendResponse.badRequest({ res, message: 'Invalid reset token' });
+    }
+
+    // Check if this token is still valid in the database
+    const storedToken = await AuthService.getResetToken(decoded.id);
+    if (!storedToken || storedToken !== token) {
+      return SendResponse.badRequest({
+        res,
+        message: 'Invalid or expired reset token',
+      });
+    }
+
+    // Hash new password
+    const hashedPassword = await Password.hash(password);
+
+    // Update password
+    await AuthService.updatePassword(decoded.id, hashedPassword);
+
+    // Delete the reset token
+    await AuthService.deleteResetToken(decoded.id);
+
+    // Invalidate all existing sessions for this user
+    await AuthService.deleteUserSessions(decoded.id);
+
+    return SendResponse.success({
+      res,
+      message: 'Password reset successfully',
+    });
+  } catch {
+    return SendResponse.badRequest({
+      res,
+      message: 'Invalid or expired reset token',
+    });
+  }
+};
+
+const logout = async (req: Request, res: Response) => {
+  const refreshToken = req.cookies?.refreshToken;
+
+  if (refreshToken) {
+    // Delete the session from database
+    await AuthService.deleteSession(refreshToken);
+  }
+
+  // Clear the refresh token cookie
+  res.clearCookie('refreshToken', {
+    httpOnly: true,
+    secure: ENV.NODE_ENV === 'production',
+    sameSite: ENV.NODE_ENV === 'production' ? 'none' : 'lax',
+  });
+
+  return SendResponse.success({
+    res,
+    message: 'Logged out successfully',
   });
 };
 
 export const AuthController = {
-  login,
+  signin,
   signup,
+  forgotPassword,
+  resetPassword,
+  logout,
 };

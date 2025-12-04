@@ -1,27 +1,34 @@
 import { z } from 'zod';
 
-const SigninSchema = z
-  .object({
-    email: z.email().optional(),
-    username: z.string().min(3).max(30).trim().optional(),
-    password: z.string().min(6).max(100),
-  })
-  .refine((data) => data.email || data.username, {
-    message: 'Either email or username is required',
-    path: ['email', 'username'],
-  });
-export type LoginInput = z.infer<typeof SigninSchema>;
+const SigninSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6).max(100),
+});
+export type SigninInput = z.infer<typeof SigninSchema>;
 
 const SignupSchema = z.object({
-  firstName: z.string().min(1).max(50).trim(),
-  lastName: z.string().min(1).max(50).trim().optional(),
-  email: z.email(),
+  name: z.string().min(1).max(100).trim(),
+  email: z.string().email(),
   password: z.string().min(6).max(100),
-  username: z.string().min(3).max(30).trim().optional(),
+  phone: z.string().min(1).max(20).trim(),
+  role: z.enum(['admin', 'customer']).default('customer'),
 });
 export type SignupInput = z.infer<typeof SignupSchema>;
+
+const ForgotPasswordSchema = z.object({
+  email: z.string().email(),
+});
+export type ForgotPasswordInput = z.infer<typeof ForgotPasswordSchema>;
+
+const ResetPasswordSchema = z.object({
+  token: z.string().min(1),
+  password: z.string().min(6).max(100),
+});
+export type ResetPasswordInput = z.infer<typeof ResetPasswordSchema>;
 
 export const AuthZodSchema = {
   SigninSchema,
   SignupSchema,
+  ForgotPasswordSchema,
+  ResetPasswordSchema,
 };

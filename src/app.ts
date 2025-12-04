@@ -1,5 +1,6 @@
 import type { Express, NextFunction, Request, Response } from 'express';
 import express from 'express';
+import cookieParser from 'cookie-parser';
 import { appV1Router } from './routes';
 import { initDB, Logger, SendResponse } from './core';
 
@@ -14,6 +15,7 @@ export const startServer = (app: Express) => {
     });
   // middleware
   app.use(express.json());
+  app.use(cookieParser());
 
   // routes
   app.get('/', (_, res) => {
