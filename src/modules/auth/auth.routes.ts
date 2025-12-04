@@ -1,11 +1,15 @@
-import { Router } from 'express'
-import { AuthController } from './auth.controller'
-import { requestValidator } from '../../middleware'
-import { AuthZodSchema } from './auth.schema'
-import { asyncHandler } from '../../core'
+import { Router } from 'express';
+import { AuthController } from './auth.controller';
+import { requestValidator } from '../../middleware';
+import { AuthZodSchema } from './auth.schema';
+import { asyncHandler } from '../../core';
 
-const authRouter = Router()
+const authRouter = Router();
 
-authRouter.post('/login', requestValidator(AuthZodSchema.LoginSchema), asyncHandler(AuthController.login))
+authRouter.post(
+  '/login',
+  requestValidator(AuthZodSchema.LoginSchema),
+  asyncHandler(AuthController.login),
+);
 
-export { authRouter as AuthRouter }
+export { authRouter as AuthRouter };

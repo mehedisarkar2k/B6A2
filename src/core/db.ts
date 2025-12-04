@@ -1,23 +1,24 @@
-import { Pool, QueryResult, QueryResultRow } from 'pg';
+import type { QueryResult, QueryResultRow } from 'pg';
+import { Pool } from 'pg';
 import { ENV } from '../config/env';
 
 const pool = new Pool({
-    connectionString: ENV.DATABASE_URL,
-    ssl: {
-        rejectUnauthorized: ENV.NODE_ENV !== 'development',
-    },
+  connectionString: ENV.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: ENV.NODE_ENV !== 'development',
+  },
 });
 
 export const DB_QUERY = async <T extends QueryResultRow = QueryResultRow>(
-    queryText: string,
-    params?: unknown[]
+  queryText: string,
+  params?: unknown[],
 ): Promise<QueryResult<T>> => {
-    return pool.query<T>(queryText, params);
+  return pool.query<T>(queryText, params);
 };
 
 export const initDB = async () => {
-    // Create users table if not exists
-    await pool.query(`
+  // Create users table if not exists
+  await pool.query(`
         CREATE TABLE IF NOT EXISTS users(
         id SERIAL PRIMARY KEY,
         firstName VARCHAR(100) NOT NULL,
@@ -34,8 +35,8 @@ export const initDB = async () => {
         )
         `);
 
-    // sessions table for refresh tokens
-    await pool.query(`
+  // sessions table for refresh tokens
+  await pool.query(`
         CREATE TABLE IF NOT EXISTS sessions(
         id VARCHAR(255) PRIMARY KEY,
         user_id INT REFERENCES users(id) ON DELETE CASCADE,

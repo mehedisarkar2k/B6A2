@@ -7,9 +7,9 @@ import { UserZodSchema } from './user.schema';
 const userRouter = Router();
 
 userRouter.post(
-    '/',
-    requestValidator(UserZodSchema.CreateUserSchema),
-    asyncHandler(UserController.createUser)
+  '/',
+  requestValidator(UserZodSchema.CreateUserSchema),
+  asyncHandler(UserController.createUser),
 );
 
 export { userRouter as UserRouter };
