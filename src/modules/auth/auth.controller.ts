@@ -1,13 +1,13 @@
 import type { Request, Response } from 'express';
 import { AuthZodSchema } from './auth.schema';
 import type { User } from '../user/user.types';
-import { SendResponse } from '../../core';
+import { Password, SendResponse } from '../../core';
 import { UserService } from '../user/user.service';
 import { AuthService } from './auth.service';
 import { ENV } from '../../config';
 
 const login = async (req: Request, res: Response) => {
-  const payload = AuthZodSchema.LoginSchema.parse(req.body);
+  const payload = AuthZodSchema.SigninSchema.parse(req.body);
   let user: User | undefined;
 
   if (payload.email) {
@@ -44,6 +44,32 @@ const login = async (req: Request, res: Response) => {
   });
 };
 
+const signup = async (req: Request, res: Response) => {
+  const { password, ...rest } = AuthZodSchema.SignupSchema.parse(req.body);
+
+  const hashedPassword = await Password.hash(password);
+
+  const payload = {
+    ...rest,
+    password: hashedPassword,
+  };
+
+  const newUser = await UserService.createUser(payload);
+
+  if (!newUser || !newUser.rowCount) {
+    return SendResponse.internalServerError({
+      res,
+      message: 'Failed to create user',
+    });
+  }
+
+  return SendResponse.created({
+    res,
+    message: 'User created successfully',
+  });
+};
+
 export const AuthController = {
   login,
+  signup,
 };
