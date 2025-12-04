@@ -1,4 +1,3 @@
-import { UserController } from './../user/user.controller';
 import { Router } from 'express';
 import { AuthController } from './auth.controller';
 import { requestValidator } from '../../middleware';
@@ -10,7 +9,7 @@ const authRouter = Router();
 authRouter.post(
   '/signup',
   requestValidator(AuthZodSchema.SignupSchema),
-  asyncHandler(UserController.createUser),
+  asyncHandler(AuthController.signup),
 );
 
 authRouter.post(

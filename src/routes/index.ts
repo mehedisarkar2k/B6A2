@@ -4,7 +4,7 @@ import { ROUTES } from '../modules';
 const appV1Router = Router();
 
 // welcome route
-appV1Router.get('/', (req, res) => {
+appV1Router.get('/', (_, res) => {
   res.status(200).json({ success: true, message: 'Welcome to API v1' });
 });
 

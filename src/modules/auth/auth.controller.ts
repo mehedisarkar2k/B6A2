@@ -54,7 +54,7 @@ const signup = async (req: Request, res: Response) => {
     password: hashedPassword,
   };
 
-  const newUser = await UserService.createUser(payload);
+  const newUser = await AuthService.signup(payload);
 
   if (!newUser || !newUser.rowCount) {
     return SendResponse.internalServerError({

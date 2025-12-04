@@ -1,7 +1,7 @@
-import { Password } from '../../core';
+import { DB_QUERY, Password } from '../../core';
 import { JWTToken } from '../../core/jwt-token';
 import type { User } from '../user/user.types';
-import type { LoginInput } from './auth.schema';
+import type { LoginInput, SignupInput } from './auth.schema';
 
 const login = async (
   payload: LoginInput,
@@ -25,6 +25,20 @@ const login = async (
   return tokens;
 };
 
+const signup = async (payload: SignupInput) => {
+  const queryText =
+    'INSERT INTO users (firstName, lastName, email, password) VALUES ($1, $2, $3, $4) RETURNING id, firstName, lastName, email, role, created_at';
+  const queryParams = [
+    payload.firstName,
+    payload.lastName || null,
+    payload.email,
+    payload.password,
+  ];
+
+  return await DB_QUERY(queryText, queryParams);
+};
+
 export const AuthService = {
   login,
+  signup,
 };
