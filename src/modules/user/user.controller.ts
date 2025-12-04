@@ -25,7 +25,6 @@ const createUser = async (req: Request, res: Response) => {
     return SendResponse.created({
         res,
         message: 'User created successfully',
-        data: newUser.rows[0],
     });
 };
 
