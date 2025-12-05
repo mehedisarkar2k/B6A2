@@ -14,7 +14,7 @@ export const asyncHandler = <T extends (...args: any[]) => Promise<any>>(
       SendResponse.internalServerError({
         res: args[1],
         message: (error as Error).message,
-        data: ENV.NODE_ENV === 'development' ? { errorStack } : undefined,
+        errors: ENV.NODE_ENV === 'development' ? { errorStack } : undefined,
       });
     }
   }) as T;
