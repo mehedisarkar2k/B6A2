@@ -1,5 +1,29 @@
 {
   "name": "vehicle-rental-system",
+  "version": "1.0.0",
+  "description": "A robust RESTful API backend for managing vehicle rentals, built with Node.js, TypeScript, Express.js, and PostgreSQL",
+  "author": {
+    "name": "Mehedi Sarkar",
+    "email": "mehedisarkar2k@gmail.com",
+    "url": "https://github.com/mehedisarkar2k"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mehedisarkar2k/B6A2.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mehedisarkar2k/B6A2/issues"
+  },
+  "homepage": "https://github.com/mehedisarkar2k/B6A2#readme",
+  "keywords": [
+    "vehicle-rental",
+    "express",
+    "typescript",
+    "postgresql",
+    "rest-api",
+    "jwt-authentication"
+  ],
   "packageManager": "yarn@4.11.0",
   "scripts": {
     "preinstall": "npx only-allow yarn",
