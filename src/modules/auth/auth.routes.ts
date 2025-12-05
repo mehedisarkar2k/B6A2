@@ -42,4 +42,7 @@ authRouter.post(
   asyncHandler(AuthController.logout),
 );
 
+// POST /api/v1/auth/refresh-token - Refresh access token
+authRouter.post('/refresh-token', asyncHandler(AuthController.refreshToken));
+
 export { authRouter as AuthRouter };

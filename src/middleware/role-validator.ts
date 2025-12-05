@@ -17,11 +17,24 @@ export const roleValidator =
     }
 
     // validate token
-    const user = JWTToken.verify<{
+    let user: {
       id: number;
       email: string;
       role: Role;
-    }>(token);
+    };
+
+    try {
+      user = JWTToken.verify<{
+        id: number;
+        email: string;
+        role: Role;
+      }>(token);
+    } catch (error) {
+      return SendResponse.unauthorized({
+        res,
+        message: (error as Error).message || 'Unauthorized',
+      });
+    }
 
     if (!user) {
       return SendResponse.unauthorized({ res, message: 'Unauthorized' });

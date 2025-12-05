@@ -101,6 +101,20 @@ const deleteSession = async (refreshToken: string) => {
   await DB_QUERY(queryText, [refreshToken]);
 };
 
+const findSessionByRefreshToken = async (refreshToken: string) => {
+  const queryText = `SELECT * FROM sessions WHERE refresh_token = $1`;
+  const result = await DB_QUERY(queryText, [refreshToken]);
+  return result.rows[0];
+};
+
+const updateSessionRefreshToken = async (
+  oldRefreshToken: string,
+  newRefreshToken: string,
+) => {
+  const queryText = `UPDATE sessions SET refresh_token = $1, updated_at = NOW() WHERE refresh_token = $2`;
+  await DB_QUERY(queryText, [newRefreshToken, oldRefreshToken]);
+};
+
 export const AuthService = {
   login,
   signup,
@@ -111,4 +125,6 @@ export const AuthService = {
   storeRefreshToken,
   deleteUserSessions,
   deleteSession,
+  findSessionByRefreshToken,
+  updateSessionRefreshToken,
 };

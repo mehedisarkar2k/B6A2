@@ -207,10 +207,73 @@ const logout = async (req: Request, res: Response) => {
   });
 };
 
+const refreshTokenHandler = async (req: Request, res: Response) => {
+  // Get refresh token from cookie or body
+  const refreshToken = req.cookies?.refreshToken || req.body?.refreshToken;
+
+  if (!refreshToken) {
+    return SendResponse.unauthorized({
+      res,
+      message: 'Refresh token is required',
+    });
+  }
+
+  try {
+    // Check if session exists in database
+    const session = await AuthService.findSessionByRefreshToken(refreshToken);
+    if (!session) {
+      return SendResponse.unauthorized({
+        res,
+        message: 'Invalid or expired refresh token',
+      });
+    }
+
+    // Generate new tokens
+    const tokens = JWTToken.refreshToken(refreshToken);
+
+    // Update session with new refresh token (token rotation)
+    await AuthService.updateSessionRefreshToken(
+      refreshToken,
+      tokens.refreshToken,
+    );
+
+    // Set new refresh token in cookie
+    res.cookie('refreshToken', tokens.refreshToken, {
+      httpOnly: true,
+      secure: ENV.NODE_ENV === 'production',
+      sameSite: ENV.NODE_ENV === 'production' ? 'none' : 'lax',
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+    });
+
+    return SendResponse.success({
+      res,
+      message: 'Token refreshed successfully',
+      data: {
+        token: tokens.accessToken,
+      },
+    });
+  } catch {
+    // If refresh token is invalid, delete the session
+    await AuthService.deleteSession(refreshToken);
+
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: ENV.NODE_ENV === 'production',
+      sameSite: ENV.NODE_ENV === 'production' ? 'none' : 'lax',
+    });
+
+    return SendResponse.unauthorized({
+      res,
+      message: 'Invalid or expired refresh token',
+    });
+  }
+};
+
 export const AuthController = {
   signin,
   signup,
   forgotPassword,
   resetPassword,
   logout,
+  refreshToken: refreshTokenHandler,
 };

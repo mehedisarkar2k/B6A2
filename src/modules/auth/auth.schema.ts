@@ -26,9 +26,15 @@ const ResetPasswordSchema = z.object({
 });
 export type ResetPasswordInput = z.infer<typeof ResetPasswordSchema>;
 
+const RefreshTokenSchema = z.object({
+  refreshToken: z.string().min(1).optional(),
+});
+export type RefreshTokenInput = z.infer<typeof RefreshTokenSchema>;
+
 export const AuthZodSchema = {
   SigninSchema,
   SignupSchema,
   ForgotPasswordSchema,
   ResetPasswordSchema,
+  RefreshTokenSchema,
 };
