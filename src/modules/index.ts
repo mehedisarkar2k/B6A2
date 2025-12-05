@@ -7,11 +7,14 @@ const files = readdirSync(__dirname);
 
 const ROUTES: Array<{ path: string; router: Router }> = [];
 
+// Determine file extension based on environment (ts for dev, js for compiled)
+const ext = __filename.endsWith('.ts') ? '.ts' : '.js';
+
 files.forEach((file) => {
-  if (file === 'index.ts') return;
+  if (file === 'index.ts' || file === 'index.js') return;
 
   // dynamically import all the route files
-  const fileName = `${file}/${file}.routes.ts`;
+  const fileName = `${file}/${file}.routes${ext}`;
   const pathDir = path.join(__dirname, fileName);
 
   if (fs.existsSync(pathDir)) {
