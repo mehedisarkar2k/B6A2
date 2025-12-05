@@ -8,17 +8,34 @@ type SendResponseProps<T> = {
   message?: string;
 };
 
+type SendErrorResponseProps = {
+  res: Response;
+  message?: string;
+  errors?: unknown;
+};
+
 class SendResponse {
   private static sendResponse<T>(
     res: Response,
     statusCode: number,
     { data, message }: SendResponseProps<T>,
-    success: boolean = true,
   ) {
     return res.status(statusCode).json({
-      success,
+      success: true,
       message,
       data,
+    });
+  }
+
+  private static sendErrorResponse(
+    res: Response,
+    statusCode: number,
+    { message, errors }: SendErrorResponseProps,
+  ) {
+    return res.status(statusCode).json({
+      success: false,
+      message,
+      errors: errors ?? message,
     });
   }
 
@@ -40,68 +57,61 @@ class SendResponse {
   }
 
   // Error responses
-  static error<T>(props: SendResponseProps<T>) {
-    return this.sendResponse(props.res, status.BAD_REQUEST, props, false);
+  static error(props: SendErrorResponseProps) {
+    return this.sendErrorResponse(props.res, status.BAD_REQUEST, props);
   }
 
   // 409 Conflict
-  static conflict<T>(props: SendResponseProps<T>) {
-    return this.sendResponse(props.res, status.CONFLICT, props, false);
+  static conflict(props: SendErrorResponseProps) {
+    return this.sendErrorResponse(props.res, status.CONFLICT, props);
   }
 
   // 401 Unauthorized
-  static unauthorized<T>(props: SendResponseProps<T>) {
-    return this.sendResponse(props.res, status.UNAUTHORIZED, props, false);
+  static unauthorized(props: SendErrorResponseProps) {
+    return this.sendErrorResponse(props.res, status.UNAUTHORIZED, props);
   }
 
   // 400 Bad Request
-  static badRequest<T>(props: SendResponseProps<T>) {
-    return this.sendResponse(props.res, status.BAD_REQUEST, props, false);
+  static badRequest(props: SendErrorResponseProps) {
+    return this.sendErrorResponse(props.res, status.BAD_REQUEST, props);
   }
 
   // 403 Forbidden
-  static forbidden<T>(props: SendResponseProps<T>) {
-    return this.sendResponse(props.res, status.FORBIDDEN, props, false);
+  static forbidden(props: SendErrorResponseProps) {
+    return this.sendErrorResponse(props.res, status.FORBIDDEN, props);
   }
 
   // 404 Not Found
-  static notFound<T>(props: SendResponseProps<T>) {
-    return this.sendResponse(props.res, status.NOT_FOUND, props, false);
+  static notFound(props: SendErrorResponseProps) {
+    return this.sendErrorResponse(props.res, status.NOT_FOUND, props);
   }
 
   // 422 Unprocessable Entity
-  static unprocessableEntity<T>(props: SendResponseProps<T>) {
-    return this.sendResponse(
+  static unprocessableEntity(props: SendErrorResponseProps) {
+    return this.sendErrorResponse(
       props.res,
       status.UNPROCESSABLE_ENTITY,
       props,
-      false,
     );
   }
 
   // 429 Too Many Requests
-  static tooManyRequests<T>(props: SendResponseProps<T>) {
-    return this.sendResponse(props.res, status.TOO_MANY_REQUESTS, props, false);
+  static tooManyRequests(props: SendErrorResponseProps) {
+    return this.sendErrorResponse(props.res, status.TOO_MANY_REQUESTS, props);
   }
 
   // 500 Internal Server Error
-  static internalServerError<T>(props: SendResponseProps<T>) {
-    return this.sendResponse(
+  static internalServerError(props: SendErrorResponseProps) {
+    return this.sendErrorResponse(
       props.res,
       status.INTERNAL_SERVER_ERROR,
       props,
-      false,
     );
   }
 
   // 503 Service Unavailable
-  static serviceUnavailable<T>(props: SendResponseProps<T>) {
-    return this.sendResponse(
-      props.res,
-      status.SERVICE_UNAVAILABLE,
-      props,
-      false,
-    );
+  static serviceUnavailable(props: SendErrorResponseProps) {
+    return this.sendErrorResponse(props.res, status.SERVICE_UNAVAILABLE, props);
   }
 }
 

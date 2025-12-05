@@ -68,14 +68,11 @@ export const requestValidator = (schema: z.ZodType) => {
         return SendResponse.badRequest({
           res,
           message: 'Validation failed',
-          data: {
-            error: 'Invalid request data',
-            errors: formattedErrors,
-          },
+          errors: formattedErrors,
         });
       }
 
-      return SendResponse.error({
+      return SendResponse.internalServerError({
         res,
         message: 'Internal server error during validation',
       });
