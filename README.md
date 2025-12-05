@@ -4,6 +4,17 @@ A robust RESTful API backend for managing vehicle rentals, built with Node.js, T
 
 ---
 
+## 🔑 Quick Access
+
+| Environment     | URL                            | Admin Email       | Admin Password |
+| --------------- | ------------------------------ | ----------------- | -------------- |
+| **Production**  | https://b6a2.vercel.app/api/v1 | `admin@gmail.com` | `Ab@12345`     |
+| **Development** | http://localhost:8080/api/v1   | `admin@gmail.com` | `Ab@12345`     |
+
+> 💡 **Tip:** Use these credentials to test admin-only endpoints like vehicle management and user listing.
+
+---
+
 ## 📋 Table of Contents
 
 - [Architecture](#-architecture)
@@ -160,12 +171,12 @@ src/
 │   │   ├── vehicles.service.ts
 │   │   ├── vehicles.schema.ts
 │   │   └── vehicles.types.ts
-│   ├── user/              # User management
-│   │   ├── user.routes.ts
-│   │   ├── user.controller.ts
-│   │   ├── user.service.ts
-│   │   ├── user.schema.ts
-│   │   └── user.types.ts
+│   ├── users/             # User management
+│   │   ├── users.routes.ts
+│   │   ├── users.controller.ts
+│   │   ├── users.service.ts
+│   │   ├── users.schema.ts
+│   │   └── users.types.ts
 │   ├── bookings/          # Booking management
 │   │   ├── bookings.routes.ts
 │   │   ├── bookings.controller.ts
@@ -288,7 +299,7 @@ src/
 ### Base URL
 
 ```
-Development: http://localhost:8000/api/v1
+Development: http://localhost:8080/api/v1
 Production:  https://b6a2.vercel.app/api/v1
 ```
 
@@ -815,7 +826,7 @@ Authorization: Bearer <token>
 | Variable                   | Description                          | Required           |
 | -------------------------- | ------------------------------------ | ------------------ |
 | `NODE_ENV`                 | Environment (development/production) | Yes                |
-| `PORT`                     | Server port                          | No (default: 8000) |
+| `PORT`                     | Server port                          | No (default: 8080) |
 | `DATABASE_URL`             | PostgreSQL connection string         | Yes                |
 | `JWT_SECRET_KEY`           | Secret for access tokens             | Yes                |
 | `REFRESH_TOKEN_SECRET_KEY` | Secret for refresh tokens            | Yes                |
