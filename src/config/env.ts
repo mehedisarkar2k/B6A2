@@ -10,6 +10,7 @@ const env = {
   DATABASE_URL: process.env.DATABASE_URL,
   JWT_SECRET_KEY: process.env.JWT_SECRET_KEY,
   REFRESH_TOKEN_SECRET_KEY: process.env.REFRESH_TOKEN_SECRET_KEY,
+  CRON_SECRET: process.env.CRON_SECRET,
 };
 
 const ENV = EnvSchema.parse(env);

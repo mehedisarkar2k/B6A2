@@ -2,6 +2,7 @@ import type { Express, NextFunction, Request, Response } from 'express';
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import { appV1Router } from './routes';
+import { cronRoutes } from './routes/cron.routes';
 import { initDB, Logger, SendResponse } from './core';
 
 export const startServer = (app: Express) => {
@@ -27,6 +28,9 @@ export const startServer = (app: Express) => {
 
   // additional route handlers can be added here
   app.use('/api/v1', appV1Router);
+
+  // Cron routes (called by Vercel Cron Jobs)
+  app.use('/api/cron', cronRoutes);
 
   // not found route handler
   app.use((req, res) => {

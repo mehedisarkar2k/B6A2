@@ -10,4 +10,5 @@ export const EnvSchema = z.object({
   REFRESH_TOKEN_SECRET_KEY: z
     .string()
     .min(1, 'REFRESH_TOKEN_SECRET_KEY is required'),
+  CRON_SECRET: z.string().optional(),
 });

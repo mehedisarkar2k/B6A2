@@ -152,6 +152,49 @@ const calculateDaysBetween = (startDate: string, endDate: string): number => {
   return diffDays;
 };
 
+/**
+ * Auto-return expired bookings
+ * Marks all active bookings as 'returned' where rent_end_date has passed
+ * Also updates the vehicle availability status to 'available'
+ */
+const autoReturnExpiredBookings = async () => {
+  // Get all expired active bookings
+  const getExpiredBookingsQuery = `
+    SELECT id, vehicle_id
+    FROM bookings
+    WHERE status = 'active' AND rent_end_date < CURRENT_DATE
+  `;
+
+  const expiredBookings = await DB_QUERY<{ id: number; vehicle_id: number }>(
+    getExpiredBookingsQuery,
+  );
+
+  if (expiredBookings.rows.length === 0) {
+    return { updated: 0, bookingIds: [] };
+  }
+
+  const bookingIds = expiredBookings.rows.map((b) => b.id);
+  const vehicleIds = expiredBookings.rows.map((b) => b.vehicle_id);
+
+  // Update all expired bookings to 'returned'
+  const updateBookingsQuery = `
+    UPDATE bookings
+    SET status = 'returned', updated_at = NOW()
+    WHERE id = ANY($1)
+  `;
+  await DB_QUERY(updateBookingsQuery, [bookingIds]);
+
+  // Update all vehicles to 'available'
+  const updateVehiclesQuery = `
+    UPDATE vehicles
+    SET availability_status = 'available', updated_at = NOW()
+    WHERE id = ANY($1)
+  `;
+  await DB_QUERY(updateVehiclesQuery, [vehicleIds]);
+
+  return { updated: expiredBookings.rows.length, bookingIds };
+};
+
 export const BookingService = {
   createBooking,
   getBookingById,
@@ -162,4 +205,5 @@ export const BookingService = {
   getVehicleById,
   getCustomerById,
   calculateDaysBetween,
+  autoReturnExpiredBookings,
 };
