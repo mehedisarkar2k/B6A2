@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 import { SendResponse } from '../../core';
-import { UserZodSchema } from './user.schema';
-import { UserService } from './user.service';
+import { UserZodSchema } from './users.schema';
+import { UserService } from './users.service';
 
 const getAllUsers = async (_req: Request, res: Response) => {
   const users = await UserService.getAllUsers();

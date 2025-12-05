@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import { asyncHandler } from '../../core';
 import { requestValidator, roleValidator } from '../../middleware';
-import { UserController } from './user.controller';
-import { UserZodSchema } from './user.schema';
+import { UserController } from './users.controller';
+import { UserZodSchema } from './users.schema';
 import { ROLE } from '../../config';
 
 const router = Router();

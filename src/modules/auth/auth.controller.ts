@@ -1,11 +1,11 @@
 import type { Request, Response } from 'express';
 import { AuthZodSchema } from './auth.schema';
-import type { UserWithoutPassword } from '../user/user.types';
 import { Password, SendResponse } from '../../core';
-import { UserService } from '../user/user.service';
 import { AuthService } from './auth.service';
 import { ENV } from '../../config';
 import { JWTToken } from '../../core/jwt-token';
+import { UserService } from '../users/users.service';
+import type { UserWithoutPassword } from '../users/users.types';
 
 const signin = async (req: Request, res: Response) => {
   const payload = AuthZodSchema.SigninSchema.parse(req.body);

@@ -1,6 +1,6 @@
 import { DB_QUERY } from '../../core';
-import type { User, UserWithoutPassword } from './user.types';
-import type { UpdateUserInput } from './user.schema';
+import type { User, UserWithoutPassword } from './users.types';
+import type { UpdateUserInput } from './users.schema';
 
 const findUserByEmail = async (email: string) => {
   const queryText = 'SELECT * FROM users WHERE LOWER(email) = LOWER($1)';

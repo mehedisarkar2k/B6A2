@@ -1,6 +1,6 @@
 import { DB_QUERY, Password } from '../../core';
 import { JWTToken } from '../../core/jwt-token';
-import type { User } from '../user/user.types';
+import type { User } from '../users/users.types';
 import type { SigninInput, SignupInput } from './auth.schema';
 
 const login = async (
